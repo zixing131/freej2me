@@ -33,20 +33,74 @@ Development thread:
   https://retropie.org.uk/forum/topic/11441/would-you-like-to-play-nokia-j2me-games-on-retropie/
 
 ----
-**Compilation:**
-```
-> cd freej2me/
-> ant
+**FreeJ2ME Jar Compilation:**
 
-# SDL2 binary compilation
-> cd src/sdl2
-> make
-> make install
-```
-Will create jar files for each frontend. SDL2 jar file needs SDL binary to be compiled. SDL2 can be used to play on Raspberry pi.
+>From the root directory, running the following commands:
+>```
+> > cd freej2me/
+> > ant
+>```
+> Will create three different jar files inside `build/`:
+>
+> `freej2me.jar` -> Standalone AWT jar executable
+> 
+> `freej2me-lr.jar` -> Libretro executable (has to be placed on the frontend's `system/` folder, since it acts as a BIOS for the libretro core and runs J2ME jars)
+>
+>`freej2me-sdl.jar` -> Jar executable meant to be used in conjunction with SDL2
+>
+>Both the Libretro and SDL2 jar files need additional binaries to be compiled before use. Look at the additional steps below if you're going to use one of them.
+
+**Building the SDL2 binary:**
+>
+>To build the SDL2 binary, run the following commands from the root directory:
+> ```
+> # SDL2 binary compilation
+> > cd src/sdl2
+> > make
+> > make install
+> ```
+>
+> SDL2 allows FreeJ2ME to run on a Raspberry Pi.
+
+**Building the Libretro core**
+
+> **For linux:**
+>To build the libretro core, open a terminal in freej2me's folder run the following commands from there:
+>```
+># libretro core compilation
+> > cd src/libretro
+> > make
+>```
+>This will build `freej2me_libretro.so` on `src/libretro/`, which is the core libretro will use to interface with `freej2me-lr.jar`.
+>
+>Move it to your libretro frontend's `cores/` folder, with freej2me-lr.jar on `system/` and the frontend should be able to load j2me files afterwards.
+>
+>NOTE: The core DOES NOT WORK on containerized/sandboxed environments unless it can call a java runtime that also resides in the same sandbox or container, keep that in mind if you're running a libretro frontend through something like flatpak or snap for example.
+>
+
+> **For windows:**
+>To build the libretro core for windows, first you'll need mingw, or MSYS2 64. **`This guide uses MSYS2`** as it's easier to set up and works closer to linux syntax.
+>
+> Download MSYS2-x86_64 and install it on your computer. By default it will create a linux-like 'home' folder on C:\msys64\home\ and will put a folder with your username in there. This is where you have to move the freej2me folder to, so: `C:\msys64\home\USERNAME\freej2mefolder` for example.
+>
+> With the folder placed in there you can build the core, open the MSYS2 UCRT64 terminal from your pc's start menu, and run the following commands:
+>```
+> # Installing 'mingw-w64' and 'make' on msys2
+> > pacman -S mingw-w64-ucrt-x86_64-gcc
+> > pacman -S make
+>
+> # libretro core compilation
+> > cd freej2mefolder/src/libretro
+> > make
+>```
+>This will build `freej2me_libretro.dll` on `freej2mefolder/src/libretro/`, which is the core libretro will use to interface with `freej2me-lr.jar`.
+>
+>Move it to your libretro frontend's `cores/` folder, with freej2me-lr.jar on `system/` and the frontend should be able to load j2me files afterwards.
+>
+>NOTE: The windows core has only been tested on Windows 10 x64.
 
 ----
-**Usage:**
+**Usage (applies to AWT and SDL):**
 
 Launching the AWT frontend (freej2me.jar) will bring up a filepicker to select the MIDlet to run.
 
